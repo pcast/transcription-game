@@ -1,0 +1,63 @@
+<html>
+	<head>
+		<style>
+			a.button 
+			{
+				border: 2px solid #006600;
+				border-radius: 5px;
+				background-color: #009900;
+				color: #ffffff;
+				font-weight: bold;
+				text-decoration: none;
+				margin : 10px;
+				padding: 10px 10px 10px 10px;
+				display: inline-block;
+			}
+			th
+			{
+				padding: 0px 10px 5px 10px;
+			}
+			td
+			{
+				padding: 0px 10px 5px 10px;
+			}
+			h2
+			{
+				padding: 0px 10px 0px 10px;
+			}
+		</style>
+	</head>
+	<body>{% csrf_token %}
+		{% include "menu.html" %}
+		<h2>Hi scores</h2>
+		<table>
+			<tr>
+				<th>Place</th>
+				<th>User</th>
+				<th>Score</th>
+			</tr>
+			{% for score in scores %}
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ score.user }}</td>
+				<td align="right">{{ score.score }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+		<h2>Hi scores PVP</h2>
+		<table>
+			<tr>
+				<th>Place</th>
+				<th>User</th>
+				<th>Score</th>
+			</tr>
+			{% for scorepvp in scorespvp %}
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ scorepvp.user }}</td>
+				<td align="right">{{ scorepvp.pvp }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>

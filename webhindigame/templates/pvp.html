@@ -1,0 +1,169 @@
+<html>
+	<head>
+		<style>
+			a.button 
+			{
+				border: 2px solid #006600;
+				border-radius: 5px;
+				background-color: #009900;
+				color: #ffffff;
+				font-weight: bold;
+				text-decoration: none;
+				margin : 10px;
+				padding: 10px 10px 10px 10px;
+				display: inline-block;
+			}
+			button 
+			{
+				border: 2px solid #006600;
+				border-radius: 5px;
+				background-color: #009900;
+				color: #ffffff;
+				font-weight: bold;
+				text-decoration: none;
+				margin : 10px;
+				padding: 10px 10px 10px 10px;
+				display: inline-block;
+			}
+			img
+			{
+				padding: 10px 10px 10px 10px;
+			}
+		</style>
+		<script>
+			var picture = ""
+			var time = Date.now()
+			var time1 = Date.now()
+			function getCrsf()
+			{
+				var c = document.cookie
+				var c_list = c.split(";")
+				var c_crsf = ""
+				for(var i=0; i<c_list.length; i++) 
+				{
+					c_token=c_list[i].split("=")
+					if (c_token[0].trim() == "csrftoken")
+					{
+						c_crsf = c_token[1]
+					}
+				}
+				return c_crsf
+			}
+			function getPicture()
+			{
+				var xmlhttp;
+				if (window.XMLHttpRequest)
+				{// code for IE7+, Firefox, Chrome, Opera, Safari
+					xmlhttp=new XMLHttpRequest();
+				}
+				else
+				{// code for IE6, IE5
+					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				xmlhttp.onreadystatechange=function()
+				{
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+					{
+						text = xmlhttp.responseText
+						json = JSON.parse(text)
+						picture = json["picture"]
+						picture_elem = document.getElementById('picture')
+						picture_elem.src = "/static/webhindigame/" + picture + ".png"
+						oponent_elem = document.getElementById('oponent')
+						oponent_elem.value = json["oponent"]
+						time_elem = document.getElementById('time')
+						time = parseInt(json["time"]) / 1000
+						time_elem.innerHTML = "Time to beat = " + time.toString() + " s"
+						message_elem = document.getElementById('message')
+						message_elem.innerHTML = ""
+						transcript_elem = document.getElementById('transcript')
+						transcript_elem.value = ""
+						transcript_elem.focus()
+						time = Date.now()
+					}
+				}
+				user = document.getElementById('user').value
+				if (user != "")
+				{
+					xmlhttp.open("POST","getpvppicture",true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.setRequestHeader("X-CSRFToken", getCrsf());
+					xmlhttp.send("user=" + user);	
+				}
+				else { window.alert("Please input user!") }	
+			}
+			function sendTranscript()
+			{
+				time1 = Date.now()
+				var xmlhttp;
+				if (window.XMLHttpRequest)
+				{// code for IE7+, Firefox, Chrome, Opera, Safari
+					xmlhttp=new XMLHttpRequest();
+				}
+				else
+				{// code for IE6, IE5
+					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				xmlhttp.onreadystatechange=function()
+				{
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+					{
+						text = xmlhttp.responseText
+						json = JSON.parse(text)
+						score_elem = document.getElementById('score')
+						score_elem.innerHTML = "Last score = " + json["score"]
+						total_elem = document.getElementById('total')
+						total_elem.innerHTML = "Total score = " + json["total"]
+						message_elem = document.getElementById('message')
+						message_elem.innerHTML = json["message"]
+					}
+				}
+				transcript_time = time1 - time
+				user = document.getElementById('user').value
+				word = document.getElementById('transcript').value
+				oponent = document.getElementById('oponent').value
+				if (user != "")
+				{
+					xmlhttp.open("POST","sendpvptranscript",true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.setRequestHeader("X-CSRFToken", getCrsf());
+					xmlhttp.send("user=" + user + "&transcript=" + word + "&picture=" + picture + "&oponent=" + oponent + "&time=" + transcript_time.toString() );	
+				}
+				else { window.alert("Please input user!") }	
+			}
+			function on_load()
+			{
+				transcript_elem = document.getElementById('transcript')
+				transcript_elem.value = ""
+				transcript_elem.focus()
+			}
+		</script>
+	</head>
+	<body onload="on_load()">{% csrf_token %}
+		{% include "menu.html" %}
+		<h2>Hindi game PVP</h2>
+		<div style="clear:both" ></div>
+		<label>User:</label>
+		<input type="text" id="user">
+		<label>vs</label>
+		<input type="text" id="oponent">
+		<div style="clear:both" ></div>
+		<div id="time"></div>
+		<div style="clear:both" ></div>
+		<img id="picture" src="" />
+		<div style="clear:both" ></div>
+		<label>Text:</label>
+		<input type="text" id="transcript" 
+			onkeydown="if (event.keyCode == 13) { document.getElementById('send').click() } else if (event.keyCode == 32) { document.getElementById('duel').click() }"
+		>
+		<div style="clear:both" ></div>
+		<button id="duel" onclick="getPicture()">Duel</button>
+		<button id="send" onclick="sendTranscript()">Send</button>
+		<div style="clear:both" ></div>
+		<div id="score">Last score = 0</div>
+		<div id="total">Total score = 0</div>
+		<div id="message"></div>
+		<div>Space button = Duel</div>
+		<div>Enter button = Send</div>
+	</body>
+</html>

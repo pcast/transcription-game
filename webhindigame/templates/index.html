@@ -1,0 +1,140 @@
+<html>
+	<head>
+		<style>
+			a.button 
+			{
+				border: 2px solid #006600;
+				border-radius: 5px;
+				background-color: #009900;
+				color: #ffffff;
+				font-weight: bold;
+				text-decoration: none;
+				margin : 10px;
+				padding: 10px 10px 10px 10px;
+				display: inline-block;
+			}
+			button 
+			{
+				border: 2px solid #006600;
+				border-radius: 5px;
+				background-color: #009900;
+				color: #ffffff;
+				font-weight: bold;
+				text-decoration: none;
+				margin : 10px;
+				padding: 10px 10px 10px 10px;
+				display: inline-block;
+			}
+			img
+			{
+				padding: 10px 10px 10px 10px;
+			}
+		</style>
+		<script>
+			var picture = ""
+			function getCrsf()
+			{
+				var c = document.cookie
+				var c_list = c.split(";")
+				var c_crsf = ""
+				for(var i=0; i<c_list.length; i++) 
+				{
+					c_token=c_list[i].split("=")
+					if (c_token[0].trim() == "csrftoken")
+					{
+						c_crsf = c_token[1]
+					}
+				}
+				return c_crsf
+			}
+			function getPicture()
+			{
+				var xmlhttp;
+				if (window.XMLHttpRequest)
+				{// code for IE7+, Firefox, Chrome, Opera, Safari
+					xmlhttp=new XMLHttpRequest();
+				}
+				else
+				{// code for IE6, IE5
+					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				xmlhttp.onreadystatechange=function()
+				{
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+					{
+						text = xmlhttp.responseText
+						json = JSON.parse(text)
+						picture = json["picture"]
+						transcript = json["word"]
+						picture_elem = document.getElementById('picture')
+						picture_elem.src = "/static/webhindigame/" + picture + ".png"
+						transcript_elem = document.getElementById('transcript')
+						// word_elem.value = word
+						transcript_elem.value = ""
+						transcript_elem.focus()
+					}
+				}
+				xmlhttp.open("POST","getpicture",true);
+				xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+				xmlhttp.setRequestHeader("X-CSRFToken", getCrsf());
+				xmlhttp.send();	
+			}
+			function sendTranscript()
+			{
+				var xmlhttp;
+				if (window.XMLHttpRequest)
+				{// code for IE7+, Firefox, Chrome, Opera, Safari
+					xmlhttp=new XMLHttpRequest();
+				}
+				else
+				{// code for IE6, IE5
+					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				xmlhttp.onreadystatechange=function()
+				{
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+					{
+						text = xmlhttp.responseText
+						json = JSON.parse(text)
+						score_elem = document.getElementById('score')
+						score_elem.innerHTML = "Last score = " + json["score"]
+						total_elem = document.getElementById('total')
+						total_elem.innerHTML = "Total score = " + json["total"]
+					}
+				}
+				user = document.getElementById('user').value
+				word = document.getElementById('transcript').value
+				if (user != "")
+				{
+					xmlhttp.open("POST","sendtranscript",true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.setRequestHeader("X-CSRFToken", getCrsf());
+					xmlhttp.send("user=" + user + "&transcript=" + word + "&picture=" + picture );
+				}
+				else { window.alert("Please input user!") }	
+			}
+		</script>
+	</head>
+	<body onload="getPicture()">{% csrf_token %}
+		{% include "menu.html" %}
+		<h2>Hindi game</h2>
+		<div style="clear:both" ></div>
+		<label>User:</label>
+		<input type="text" id="user">
+		<div style="clear:both" ></div>
+		<img id="picture" src="" />
+		<div style="clear:both" ></div>
+		<label>Text:</label>
+		<input type="text" id="transcript" 
+			onkeydown="if (event.keyCode == 13) { document.getElementById('send').click() } else if (event.keyCode == 32) { document.getElementById('new').click() }"
+		>
+		<div style="clear:both" ></div>
+		<button id="new" onclick="getPicture()">New</button>
+		<button id="send" onclick="sendTranscript()">Send</button>
+		<div style="clear:both" ></div>
+		<div id="score">Last score = 0</div>
+		<div id="total">Total score = 0</div>
+		<div>Space button = New</div>
+		<div>Enter button = Send</div>
+	</body>
+</html>

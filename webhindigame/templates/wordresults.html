@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<style>
+			a.button 
+			{
+				border: 2px solid #006600;
+				border-radius: 5px;
+				background-color: #009900;
+				color: #ffffff;
+				font-weight: bold;
+				text-decoration: none;
+				margin : 10px;
+				padding: 10px 10px 10px 10px;
+				display: inline-block;
+			}
+			th
+			{
+				padding: 0px 10px 5px 10px;
+			}
+			td
+			{
+				padding: 0px 10px 5px 10px;
+			}
+			h2
+			{
+				padding: 0px 10px 0px 10px;
+			}
+			img
+			{
+				height: 16px
+			}
+		</style>
+	</head>
+	<body>{% csrf_token %}
+		{% include "menu.html" %}
+		<h2>Word results</h2>
+		<table>
+			<tr>
+				<th>Word</th>
+				<th>OCR</th>
+				<th>Transcript</th>
+			</tr>
+			{% for word in words %}
+			<tr>
+				<td><img src="/static/webhindigame/{{ word.picture }}.png"></td>
+				<td>{{ word.word }}</td>
+				<td>{{ word.transcript }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>
